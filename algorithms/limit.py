@@ -23,4 +23,14 @@ def limit(arry, min_lim=None, max_lim=None):
     return [val for val in arry if min_check(val) and max_check(val)]
 
 
-print(limit([1, 2, 3, 4, 5], max_lim=2, min_lim=4))
+def limit2(arry, min_lim=None, max_lim=None):
+    if len(arry) == 0:
+        return []
+
+    if min_lim is None:
+        min_lim = min(arry)
+
+    if max_lim is None:
+        max_lim = max(arry)
+
+    return list(filter(lambda val: min_lim <= val <= max_lim, arry))
