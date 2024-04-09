@@ -25,7 +25,7 @@ def limit(arry, min_lim=None, max_lim=None):
 
 def limit2(arry, min_lim=None, max_lim=None):
     if len(arry) == 0:
-        return []
+        return arry
 
     if min_lim is None:
         min_lim = min(arry)
