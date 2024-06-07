@@ -1,4 +1,4 @@
-# Contributing to [Project Name]
+# Contributing to Algorithms
 
 ## How to contribute
 
