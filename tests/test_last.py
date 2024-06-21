@@ -1,6 +1,6 @@
 import unittest
 
-from algorithms.last import last
+from algorithms.last_item import last
 
 
 class LastTest(unittest.TestCase):
