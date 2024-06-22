@@ -1,5 +1,6 @@
 import unittest
 import traceback
+from itertools import count
 
 
 from algorithms.more import (
@@ -7,7 +8,8 @@ from algorithms.more import (
     chunked,
     first,
     last,
-    nth_or_last
+    nth_or_last,
+    one
 
 )
 
@@ -155,6 +157,52 @@ class NthOrLastTest(unittest.TestCase):
 
     def test_empty(self):
         self.assertRaises(ValueError, lambda: nth_or_last(range(0), 4))
+
+
+class OneTest(unittest.TestCase):
+
+    def test_basic(self):
+        it = ['item']
+        self.assertEqual(one(it), 'item')
+
+    def test_too_short(self):
+        it = []
+        for too_short, exc_type in [
+            (None, ValueError),
+            (StopIteration, StopIteration)
+        ]:
+            with self.subTest(too_short=too_short):
+                try:
+                    one(it, too_short)
+                except exc_type:
+                    formatted_exc = traceback.format_exc()
+                    self.assertIn(
+                        'StopIteration',
+                        formatted_exc
+                        )
+                    self.assertIn(
+                        'The above exception was the direct cause',
+                        formatted_exc
+                        )
+
+    def test_too_long(self):
+        it = count()
+        self.assertRaises(ValueError, lambda: one(it))
+        self.assertEqual(next(it), 2)
+        self.assertRaises(
+            OverflowError,
+            lambda: one(it, too_long=OverflowError)
+            )
+
+    def test_too_long_default_message(self):
+        it = count()
+
+        self.assertRaisesRegex(
+            ValueError,
+            'Expected exactly one item in iterable, but got 0, 1, '
+            'and perhaps more.',
+            lambda: one(it)
+        )
 
 
 if __name__ == '__main__':
