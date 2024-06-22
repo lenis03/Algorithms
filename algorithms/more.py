@@ -2,6 +2,7 @@ from functools import partial
 from itertools import islice
 from collections.abc import Sequence
 from collections import deque
+from itertools import chain
 
 
 _marker = object()
@@ -190,3 +191,17 @@ def one(iterable, too_short=None, too_long=None):
         raise too_long or ValueError(msg)
 
     return first_value
+
+
+def interleave(*iterable):
+    """
+    Return a new iterable yielding from each iterable in turn,
+    until the shortest is exhausted.
+
+        >>> list(interleave([1, 2, 3], [4, 5], [6, 7, 8]))
+        [1, 4, 6, 2, 5, 7]
+
+    For a version that doesn't terminate after the shortest iterable is
+    exhausted, see :func:`interleave_longest`.
+    """
+    return chain.from_iterable(zip(*iterable))
