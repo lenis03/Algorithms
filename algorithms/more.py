@@ -1,5 +1,5 @@
 from functools import partial
-from itertools import islice
+from itertools import islice, repeat
 from collections.abc import Sequence
 from collections import deque
 from itertools import chain
@@ -205,3 +205,13 @@ def interleave(*iterable):
     exhausted, see :func:`interleave_longest`.
     """
     return chain.from_iterable(zip(*iterable))
+
+
+def repeat_each(iterable, n=2):
+    """
+    Repeat each element in *iterable* *n* times.
+
+    >>> list(repeat_each('ABC', 3))
+    ['A', 'A', 'A', 'B', 'B', 'B', 'C', 'C', 'C']
+    """
+    return chain.from_iterable(map(repeat, iterable, repeat(n)))
