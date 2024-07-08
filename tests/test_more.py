@@ -13,6 +13,7 @@ from algorithms.more import (
     interleave,
     repeat_each,
     strictly_n,
+    only,
 
 )
 
@@ -328,6 +329,39 @@ class StrictlyNTest(unittest.TestCase):
 
         self.assertEqual(actual, ['a', 'b'])
         self.assertIn('Picked the first 2 items', exc.output[0])
+
+
+class OnlyTest(unittest.TestCase):
+    def test_defaults(self):
+        self.assertEqual(only([]), None)
+        self.assertEqual(only([1]), 1)
+        self.assertRaises(ValueError, lambda: only([1, 2, 4]))
+        # Why we use lambda? because if we don't use it raises error stops our
+        # program, then we use lamda to returen raises error!
+
+    def test_custom_default_value(self):
+        self.assertEqual(only([], default='!'), '!')
+        self.assertEqual(only([2], default=44), 2)
+        self.assertRaises(
+            ValueError,
+            lambda: only([22, 44, 11], default='some default')
+            )
+
+    def test_custom_exception(self):
+        self.assertEqual(only([], too_long=RuntimeError), None)
+        self.assertEqual(only([1], too_long=RuntimeError), 1)
+        self.assertRaises(
+            RuntimeError,
+            lambda: only([11, 22], too_long=RuntimeError)
+            )
+
+    def test_default_exception_message(self):
+        self.assertRaisesRegex(
+            ValueError,
+            'Expected exactly one item in iterable, '
+            'but got foo, bar, and perhaps more.',
+            lambda: only(['foo', 'bar', 'baz'])
+        )
 
 
 if __name__ == '__main__':
