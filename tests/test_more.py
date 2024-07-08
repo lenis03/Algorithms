@@ -14,6 +14,7 @@ from algorithms.more import (
     repeat_each,
     strictly_n,
     only,
+    always_reversible,
 
 )
 
@@ -362,6 +363,38 @@ class OnlyTest(unittest.TestCase):
             'but got foo, bar, and perhaps more.',
             lambda: only(['foo', 'bar', 'baz'])
         )
+
+
+class AlwaysReversibleTest(unittest.TestCase):
+
+    def test_regular_reversed(self):
+
+        self.assertEqual(
+            list(reversed(range(10))),
+            list(always_reversible(range(10)))
+        )
+        self.assertEqual(
+            list(reversed([1, 2, 3, 4])),
+            list(always_reversible([1, 2, 3, 4]))
+            )
+        self.assertEqual(
+            reversed([1, 2, 3, 4]).__class__,
+            always_reversible([1, 2, 3, 4]).__class__)
+
+    def test_nonseq_reversed(self):
+
+        self.assertEqual(
+            list(reversed(range(10))),
+            list(always_reversible(i for i in range(10)))
+        )
+        self.assertEqual(
+            list(reversed([1, 2, 3])),
+            list(always_reversible(i for i in [1, 2, 3]))
+        )
+        self.assertNotEqual(
+            reversed((1, 2)).__class__,
+            always_reversible(i for i in (1, 2)).__class__
+            )
 
 
 if __name__ == '__main__':
