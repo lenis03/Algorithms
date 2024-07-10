@@ -15,6 +15,8 @@ from algorithms.more import (
     strictly_n,
     only,
     always_reversible,
+    always_iterable,
+
 
 )
 
@@ -395,6 +397,65 @@ class AlwaysReversibleTest(unittest.TestCase):
             reversed((1, 2)).__class__,
             always_reversible(i for i in (1, 2)).__class__
             )
+
+
+class AlwaysIterableTest(unittest.TestCase):
+    def test_single(self):
+        self.assertEqual(list(always_iterable(1)), [1])
+
+    def test_string(self):
+        for obj in ['foo', b'bar', 'baz']:
+            actual = list(always_iterable(obj))
+            excpected = [obj]
+            self.assertEqual(actual, excpected)
+
+    def test_base_type(self):
+        dict_obj = {'a': 1, 'b': 2}
+        str_obj = '123'
+
+        # Default: dicts are iterable like they normally are
+        default_actual = list(always_iterable(dict_obj))
+        default_expected = list(dict_obj)
+        self.assertEqual(default_actual, default_expected)
+
+        # Unitary types set: dicts are not iterable
+        custom_actual = list(always_iterable(dict_obj, base_type=dict))
+        custom_expected = [dict_obj]
+        self.assertEqual(custom_actual, custom_expected)
+
+        # With unitary types set, strings are iterable
+        str_actual = list(always_iterable(str_obj, base_type=None))
+        str_excepted = list(str_obj)
+        self.assertEqual(str_actual, str_excepted)
+
+        # base_type handles nested tuple (via isinstance).
+        base_type = ((dict,),)
+        custom_actual = list(always_iterable(dict_obj, base_type=base_type))
+        custom_expected = [dict_obj]
+        self.assertEqual(custom_actual, custom_expected)
+
+    def test_iterable(self):
+        self.assertEqual(
+            list(always_iterable([0, 1])),
+            [0, 1])
+        self.assertEqual(
+            list(always_iterable([0, 1], base_type=list)),
+            [[0, 1]])
+        self.assertEqual(
+            list(always_iterable(iter('foo'))),
+            ['f', 'o', 'o'])
+        self.assertEqual(
+            list(always_iterable([])),
+            [])
+
+    def test_none(self):
+        self.assertEqual(list(always_iterable(None)), [])
+
+    def test_generator(self):
+        def _gen():
+            yield 0
+            yield 1
+        self.assertEqual(list(always_iterable(_gen())), [0, 1])
 
 
 if __name__ == '__main__':
