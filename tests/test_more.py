@@ -24,6 +24,7 @@ from algorithms.more import (
     map_if,
     time_limited,
     difference,
+    value_chain,
 
 )
 
@@ -721,6 +722,39 @@ class DifferenceTest(unittest.TestCase):
         accumulated = accumulate(original, initial=100)
         actual = list(difference(accumulated, initial=100))
         self.assertEqual(actual, original)
+
+
+class ValueChainTest(unittest.TestCase):
+    def test_empty(self):
+        actual = list(value_chain())
+        expected = []
+        self.assertEqual(actual, expected)
+
+    def test_simple(self):
+        actual = list(value_chain(1, 5, 2.15, False, 'foo'))
+        expected = [1, 5, 2.15, False, 'foo']
+        self.assertEqual(actual, expected)
+
+    def test_more(self):
+        actual = list(value_chain(b'foo', [1, 2, 3, 4], 4, {'key': 1}))
+        expected = [b'foo', 1, 2, 3, 4, 4, 'key']
+        self.assertEqual(actual, expected)
+
+    def test_empty_lists(self):
+        actual = list(value_chain(1, 2, [], [4, 5, 6]))
+        expected = [1, 2, 4, 5, 6]
+        self.assertEqual(actual, expected)
+
+    def test_complex(self):
+        obj = object()
+        actual = list(value_chain(
+            (1, (4, (3, ))),
+            ['foo', ['bar', ['baz']], 'tic'],
+            {'key': {'foo': 1}},
+            obj,
+        ))
+        expected = [1, (4, (3, )), 'foo', ['bar', ['baz']], 'tic', 'key', obj]
+        self.assertEqual(actual, expected)
 
 
 if __name__ == '__main__':
