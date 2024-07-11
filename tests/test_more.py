@@ -1,7 +1,9 @@
 from time import sleep
 import unittest
 import traceback
-from itertools import count, cycle
+from itertools import count, cycle, accumulate
+from operator import add
+from sys import version_info
 
 
 from algorithms.more import (
@@ -21,6 +23,7 @@ from algorithms.more import (
     split_into,
     map_if,
     time_limited,
+    difference,
 
 )
 
@@ -685,6 +688,39 @@ class TimeLimitedTest(unittest.TestCase):
     def test_invalid_limit(self):
         with self.assertRaises(ValueError):
             list(time_limited(-0.1, count()))
+
+
+class DifferenceTest(unittest.TestCase):
+    def test_normal(self):
+        iterable = [10, 20, 30, 40, 50]
+        actual = list(difference(iterable))
+        expected = [10, 10, 10, 10, 10]
+        self.assertEqual(actual, expected)
+
+    def test_custom(self):
+        iterable = [10, 20, 30, 40, 50]
+        actual = list(difference(iterable, add))
+        expected = [10, 30, 50, 70, 90]
+        self.assertEqual(actual, expected)
+
+    def test_roundtrip(self):
+        original = list(range(100))
+        accumulated = accumulate(original)
+        actual = list(difference(accumulated))
+        self.assertEqual(actual, original)
+
+    def test_one(self):
+        self.assertEqual(list(difference([0])), [0])
+
+    def test_empty(self):
+        self.assertEqual(list(difference([])), [])
+
+    @unittest.skipIf(version_info[:2] < (3, 8), 'accumulate with initial needs +3.8')
+    def test_initial(self):
+        original = list(range(100))
+        accumulated = accumulate(original, initial=100)
+        actual = list(difference(accumulated, initial=100))
+        self.assertEqual(actual, original)
 
 
 if __name__ == '__main__':
