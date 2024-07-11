@@ -1,3 +1,4 @@
+from time import sleep
 import unittest
 import traceback
 from itertools import count, cycle
@@ -19,6 +20,7 @@ from algorithms.more import (
     split_after,
     split_into,
     map_if,
+    time_limited,
 
 )
 
@@ -650,6 +652,39 @@ class MapIfTest(unittest.TestCase):
         actual = list(map_if([], lambda x: x > 5, lambda x: None))
         expected = []
         self.assertEqual(actual, expected)
+
+
+class TimeLimitedTest(unittest.TestCase):
+    def test_basic(self):
+        def _generator():
+            yield 1
+            yield 2
+            sleep(0.2)
+            yield 3
+
+        iterable = time_limited(0.1, _generator())
+        actual = list(iterable)
+        expected = [1, 2]
+        self.assertEqual(actual, expected)
+        self.assertTrue(iterable.timed_out)
+
+    def test_complete(self):
+        iterable = time_limited(2, range(10))
+        actual = list(iterable)
+        expected = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        self.assertEqual(actual, expected)
+        self.assertFalse(iterable.timed_out)
+
+    def test_zero_limit(self):
+        iterable = time_limited(0, count())
+        actual = list(iterable)
+        expected = []
+        self.assertEqual(actual, expected)
+        self.assertTrue(iterable.timed_out)
+
+    def test_invalid_limit(self):
+        with self.assertRaises(ValueError):
+            list(time_limited(-0.1, count()))
 
 
 if __name__ == '__main__':
