@@ -25,6 +25,7 @@ from algorithms.more import (
     time_limited,
     difference,
     value_chain,
+    SequenceView,
 
 )
 
@@ -755,6 +756,40 @@ class ValueChainTest(unittest.TestCase):
         ))
         expected = [1, (4, (3, )), 'foo', ['bar', ['baz']], 'tic', 'key', obj]
         self.assertEqual(actual, expected)
+
+
+class SequenceViewTest(unittest.TestCase):
+    def test_init(self):
+        view = SequenceView((1, 2, 3))
+        self.assertEqual(repr(view), "SequenceView((1, 2, 3))")
+        self.assertRaises(TypeError, lambda: SequenceView({}))
+
+    def test_update(self):
+        seq = [1, 2, 3]
+        view = SequenceView(seq)
+        self.assertEqual(len(view), 3)
+        self.assertEqual(repr(view), "SequenceView([1, 2, 3])")
+
+        seq.pop()
+        self.assertEqual(len(view), 2)
+        self.assertEqual(repr(view), "SequenceView([1, 2])")
+
+    def test_indexing(self):
+        seq = ('a', 'b', 'c', 'd', 'e', 'f')
+        view = SequenceView(seq)
+        for i in range(-len(seq), len(seq)):
+            self.assertEqual(view[i], seq[i])
+
+    def test_abc_methods(self):
+        seq = ('a', 'b', 'c', 'd', 'e', 'f', 'f')
+        view = SequenceView(seq)
+
+        self.assertIn('b', view)
+        self.assertNotIn('x', view)
+        self.assertEqual(list(iter(view)), list(seq))
+        self.assertEqual(list(reversed(view)), list(reversed(seq)))
+        self.assertEqual(view.index('b'), 1)
+        self.assertEqual(view.count('f'), 2)
 
 
 if __name__ == '__main__':
